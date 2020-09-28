@@ -1,13 +1,48 @@
 import React, { useState } from "react";
 import "./CustomTableComponent.scss"
 import { generateSampleData } from "../../util/genUtil";
-import { Table, TableHead, TableRow, TableBody, TableCell, Box, Popover, Button, TextField, Select, MenuItem, Chip, Icon } from '@material-ui/core'
-import Autocomplete from '@material-ui/lab/Autocomplete';
+import { Table, TableHead, TableRow, TableBody, TableCell, Box, Popover, Button, TextField, Chip } from '@material-ui/core'
+import { makeStyles } from "@material-ui/core/styles";
+import { fade } from "@material-ui/core/styles/colorManipulator";
+
 
 import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
 import AddColumnDialogue from '../add-column-dialogue/AddColumnDialogue'
+import LookupComponent from '../lookup-component/LookupComponent'
+
+const useStyles = makeStyles( (theme) => ({
+  root: {
+    width: "80%",
+    // padding: "10px",
+  },
+  container: {
+    maxHeight: 440,
+  },
+  stickyHeader: {
+    backgroundColor: "black",
+    color: "white",
+  },
+  head: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 14,
+    backgroundColor: "black",
+  },
+  cellRoot: {
+    maxWidth: "40px",
+    minWidth: "100%",
+    padding: "10px",
+  },
+  tableStriped: {
+    "& tbody tr:nth-of-type(odd)": {
+      backgroundColor: fade(theme.palette.primary.main, 0.15),
+    },
+  }
+}));
+
 
 export default function CustomTableComponent() {
+  const classes = useStyles();
   const [dataState, setDataState] = useState(generateSampleData(10));
   const [editCellValue, setEditCellValue] = useState('');
   const [columnCounter, setColumnCounter] = useState(1);
@@ -175,7 +210,7 @@ export default function CustomTableComponent() {
               {
                 dataState.columns.map((col, index) => {
                   return (
-                    <TableCell
+                    <TableCell classes={{ head: classes.head }}
                       draggable
                       onDragStart={(event) => handleDragStart(event, index)}
                       onDragOver={(event) => handleDragOver(event, index)}
@@ -192,10 +227,10 @@ export default function CustomTableComponent() {
           <TableBody>
             {
               dataState.rows.map((row, index) => (
-                <TableRow key={index}>
+                <TableRow key={index} style ={ index % 2? { background : "#EEEEEC" }:{ background : "white" }} >
                   {
                     dataState.columns.map((col) => (
-                      <TableCell onClick={() => onEdit(index, col.name, row[col.name])}>
+                      <TableCell onClick={() => onEdit(index, col.name, row[col.name])} classes={{root: classes.cellRoot}}>
                         {
                           inEditMode.status && inEditMode.rowKey === index && inEditMode.colKey === col.name ?
                             col.type === 'lookup' ? (
@@ -240,46 +275,5 @@ export default function CustomTableComponent() {
         </Table>
       </div>
     </div>
-  )
-}
-
-function LookupComponent(props) {
-
-  const [state, setState] = useState(props.value == null ? Object.keys(props.column.lookup)[0] : props.value)
-  const handleOnChange = (e, value) => {
-    e.target.value = value != null && value.id
-    props.onSelect(e, props.rowIndex, props.column.name)
-    props = {
-      ...props, value: e.target.value
-    }
-    setState(props.value)
-  }
-
-  const handleOnKeyPress = (e) => {
-    if (e.key != null && e.key === 'Enter') {
-      props.onAddNewLookup(e, props.rowIndex, props.column.name)
-    }
-  }
-
-  function getSelectedItem(){
-    const item = props.column.lookup.find((opt)=>{
-      if (opt.id === state)
-        return opt;
-    })
-    return item || {};
-  }
-
-  return (
-    <Autocomplete
-      value={getSelectedItem()}
-      id="disable-clearable"
-      disableClearable
-      options={props.column.lookup}
-      getOptionLabel={(option) => option.title}
-      style={{ width: 300 }}
-      onChange={handleOnChange}
-      onKeyPress={handleOnKeyPress}
-      renderInput={(params) => <TextField {...params} label={props.column.title}/>}
-    />
   )
 }
