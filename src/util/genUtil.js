@@ -28,12 +28,12 @@ export function generateSampleData(nRows = 10) {
   var colName = getSampleColumn("name", "Name", "text");
   var colPhoneNum = getSampleColumn("phNum", "Phone Number", "text");
   var colEmail = getSampleColumn("email", "Email", "text");
-  const leadTypes = {
-    1: "No label",
-    2: "Cold lead",
-    3: "Warm lead",
-    4: "Hot lead"
-};
+  const leadTypes = [
+    { id: 1, title: "No label" },
+    { id: 2, title: "Cold lead" },
+    { id: 3, title: "Warm lead" },
+    { id: 4, title: "Hot lead" }
+  ];
   var colLead = getSampleColumn("lead", "Lead Type", "lookup", leadTypes);
 
   var columns = [colId, colName, colPhoneNum, colEmail, colLead];
